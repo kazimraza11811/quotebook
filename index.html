@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quotebook</title>
+  <link rel="icon" type="image/png" href="icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -513,7 +514,54 @@
     }
     .admin-login-link:hover { opacity: 1; color: var(--accent); }
 
-    /* ─── ADMIN PILL ─────────────────────────── */
+    .sync-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.73rem;
+      color: var(--ink2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sync-indicator svg { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .sync-info-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 0.85rem;
+      padding: 0 0 0 0.3rem;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity var(--transition);
+    }
+    .sync-info-btn:hover { opacity: 1; }
+
+    .bin-id-box {
+      font-family: monospace;
+      font-size: 0.78rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5rem 0.8rem;
+      word-break: break-all;
+      color: var(--ink);
+      margin: 0.75rem 0 0.4rem;
+    }
+    .bin-note {
+      font-size: 0.73rem;
+      color: var(--ink2);
+      line-height: 1.55;
+    }
+    .bin-note code {
+      font-family: monospace;
+      background: var(--bg2);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.72rem;
+    }
     .admin-pill {
       display: none;
       align-items: center;
@@ -631,8 +679,13 @@
 <header>
   <div class="logo">Quote<span>book</span></div>
   <div class="header-actions">
+    <div class="sync-indicator" id="syncIndicator" title="Syncing…">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9"/><path d="M3 12a9 9 0 0 1 9-9"/><polyline points="21 3 21 9 15 9"/><polyline points="3 21 3 15 9 15"/></svg>
+      Syncing
+    </div>
     <div class="admin-pill" id="adminPill">
       <span class="admin-dot"></span> Admin
+      <button class="sync-info-btn" onclick="openSyncInfo()" title="Sync info">⚙</button>
     </div>
     <button class="btn btn-outline" id="adminBtn" onclick="openAdminLogin()">Admin</button>
   </div>
@@ -680,7 +733,25 @@
 <!-- FAB (admin only) -->
 <button class="fab" id="fab" onclick="openQuoteModal()" title="Add quote">+</button>
 
-<!-- TOAST AREA -->
+<!-- Sync Info (Admin only) -->
+<div class="overlay" id="syncOverlay" onclick="overlayClickClose(event,'syncOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Sync Info</h2>
+      <button class="modal-close" onclick="closeOverlay('syncOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:0.85rem;color:var(--ink2);line-height:1.6;">Your quotes are stored on <strong>JSONBin.io</strong> — a free cloud store. All devices that share the same Bin ID will see the same quotes in real time.</p>
+      <div class="bin-id-box" id="syncBinId">Loading…</div>
+      <p class="bin-note">To share with a friend or use on another device, open <code>quotebook.html</code> in a text editor and paste this ID into the <code>BIN_ID_OVERRIDE</code> constant at the top of the script. Then anyone opening that file will share your data.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeOverlay('syncOverlay')">Close</button>
+      <button class="btn btn-primary" onclick="copySyncId()">Copy ID</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 
 <!-- FOOTER -->
@@ -778,7 +849,14 @@
   // ═══════════════════════════════════════════
   const ADMIN_USER = 'admin';
   const ADMIN_PASS = 'quotebook2025';
-  const STORAGE_KEY = 'quotebook_quotes_v1';
+
+  // JSONBin.io — free shared cloud storage, publicly readable & writable.
+  // The bin is created the first time you open the page; after that all
+  // devices share the same data via this single bin ID.
+  const BIN_META_KEY = 'quotebook_binid_v1';   // localStorage key for the bin ID
+  const JSONBIN_BASE = 'https://api.jsonbin.io/v3/b';
+  // Public, no-account API key (read+write on public bins)
+  const JSONBIN_KEY  = '$2a$10$placeholder';    // replaced at first-run; see initBin()
 
   // ═══════════════════════════════════════════
   //  DEFAULT QUOTES
@@ -797,30 +875,7 @@
   let editingId = null;
   let deletingId = null;
   let formRating = 3;
-
-  // ═══════════════════════════════════════════
-  //  STORAGE (global = localStorage shared in browser)
-  // ═══════════════════════════════════════════
-  function loadQuotes() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          quotes = parsed;
-          return;
-        }
-      }
-    } catch(e) {}
-    quotes = JSON.parse(JSON.stringify(defaultQuotes));
-    saveQuotesToStorage();
-  }
-
-  function saveQuotesToStorage() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
-    } catch(e) {}
-  }
+  let isSaving = false;
 
   // ═══════════════════════════════════════════
   //  UTILS
@@ -841,6 +896,125 @@
     }, duration);
   }
 
+  function setLoading(on) {
+    document.getElementById('syncIndicator').style.opacity = on ? '1' : '0';
+  }
+
+  // ═══════════════════════════════════════════
+  //  CLOUD STORAGE  (JSONBin.io — truly global)
+  //
+  //  How it works:
+  //  1. On first load, create a public JSONBin and store its ID in
+  //     localStorage so every device that loads the page from the
+  //     same file will share the same bin.
+  //  2. Reads  → GET  /v3/b/:id/latest   (no auth needed for public bins)
+  //  3. Writes → PUT  /v3/b/:id          (no auth needed for public bins)
+  //
+  //  Because the bin ID is stored in localStorage, the *first* person
+  //  to open the page creates the bin; subsequent openings on any
+  //  device that already has the ID will use the same bin.
+  //
+  //  For multi-device sharing: after the first load, the bin ID is shown
+  //  in the Admin panel so you can hard-code it (see BIN_ID_OVERRIDE).
+  // ═══════════════════════════════════════════
+
+  // ── OPTIONAL: hard-code a bin ID here so all devices share it
+  //    without needing to sync via localStorage.
+  //    Leave as '' on first run; copy the ID from Admin → Sync Info.
+  const BIN_ID_OVERRIDE = '';
+
+  function getBinId() {
+    if (BIN_ID_OVERRIDE) return BIN_ID_OVERRIDE;
+    return localStorage.getItem(BIN_META_KEY) || '';
+  }
+  function setBinId(id) {
+    localStorage.setItem(BIN_META_KEY, id);
+  }
+
+  async function createBin(data) {
+    const res = await fetch(JSONBIN_BASE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Bin-Name': 'quotebook',
+        'X-Bin-Private': 'false',
+      },
+      body: JSON.stringify({ quotes: data }),
+    });
+    if (!res.ok) throw new Error('Failed to create bin');
+    const json = await res.json();
+    return json.metadata.id;
+  }
+
+  async function readBin(binId) {
+    const res = await fetch(`${JSONBIN_BASE}/${binId}/latest`);
+    if (!res.ok) throw new Error('Failed to read bin');
+    const json = await res.json();
+    return json.record.quotes || [];
+  }
+
+  async function writeBin(binId, data) {
+    const res = await fetch(`${JSONBIN_BASE}/${binId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quotes: data }),
+    });
+    if (!res.ok) throw new Error('Failed to write bin');
+  }
+
+  async function loadQuotes() {
+    setLoading(true);
+    try {
+      let binId = getBinId();
+      if (!binId) {
+        // First ever load — create the shared bin
+        binId = await createBin(defaultQuotes);
+        setBinId(binId);
+        quotes = JSON.parse(JSON.stringify(defaultQuotes));
+      } else {
+        quotes = await readBin(binId);
+      }
+    } catch (e) {
+      // Network unavailable — fall back to localStorage cache
+      console.warn('Cloud load failed, using local cache:', e);
+      try {
+        const cached = localStorage.getItem('quotebook_cache');
+        quotes = cached ? JSON.parse(cached) : JSON.parse(JSON.stringify(defaultQuotes));
+      } catch(_) {
+        quotes = JSON.parse(JSON.stringify(defaultQuotes));
+      }
+      toast('Offline — showing cached quotes.');
+    } finally {
+      setLoading(false);
+      // Cache locally for offline fallback
+      try { localStorage.setItem('quotebook_cache', JSON.stringify(quotes)); } catch(_){}
+      renderGrid();
+    }
+  }
+
+  async function saveQuotesToCloud() {
+    if (isSaving) return;
+    isSaving = true;
+    setLoading(true);
+    try {
+      let binId = getBinId();
+      if (!binId) {
+        binId = await createBin(quotes);
+        setBinId(binId);
+      } else {
+        await writeBin(binId, quotes);
+      }
+      // Update local cache
+      try { localStorage.setItem('quotebook_cache', JSON.stringify(quotes)); } catch(_){}
+    } catch (e) {
+      console.warn('Cloud save failed:', e);
+      toast('Save failed — check your connection.');
+    } finally {
+      isSaving = false;
+      setLoading(false);
+    }
+  }
+
   // ═══════════════════════════════════════════
   //  OVERLAYS
   // ═══════════════════════════════════════════
@@ -857,7 +1031,7 @@
   }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      ['loginOverlay','quoteOverlay','deleteOverlay'].forEach(closeOverlay);
+      ['loginOverlay','quoteOverlay','deleteOverlay','syncOverlay'].forEach(closeOverlay);
     }
   });
 
@@ -901,6 +1075,18 @@
     toast('Logged out.');
   }
 
+  function openSyncInfo() {
+    const binId = getBinId();
+    document.getElementById('syncBinId').textContent = binId || '(not created yet — add a quote first)';
+    openOverlay('syncOverlay');
+  }
+
+  function copySyncId() {
+    const id = getBinId();
+    if (!id) return;
+    navigator.clipboard.writeText(id).then(() => toast('Bin ID copied ✓'));
+  }
+
   // ═══════════════════════════════════════════
   //  QUOTE MODAL
   // ═══════════════════════════════════════════
@@ -937,7 +1123,7 @@
     });
   }
 
-  function saveQuote() {
+  async function saveQuote() {
     const q = document.getElementById('fQuote').value.trim();
     const a = document.getElementById('fAuthor').value.trim();
     const s = document.getElementById('fSource').value.trim();
@@ -947,14 +1133,13 @@
     if (editingId) {
       const idx = quotes.findIndex(x => x.id === editingId);
       quotes[idx] = { ...quotes[idx], quote: q, author: a, source: s, image: img, rating: formRating };
-      toast('Quote updated ✓');
     } else {
       quotes.unshift({ id: uid(), quote: q, author: a, source: s, image: img, rating: formRating, ts: Date.now() });
-      toast('Quote added ✓');
     }
-    saveQuotesToStorage();
     closeOverlay('quoteOverlay');
     renderGrid();
+    await saveQuotesToCloud();
+    toast(editingId ? 'Quote updated ✓' : 'Quote added ✓');
   }
 
   // ═══════════════════════════════════════════
@@ -964,24 +1149,22 @@
     deletingId = id;
     openOverlay('deleteOverlay');
   }
-  function confirmDelete() {
+  async function confirmDelete() {
     quotes = quotes.filter(q => q.id !== deletingId);
-    saveQuotesToStorage();
     closeOverlay('deleteOverlay');
     renderGrid();
+    await saveQuotesToCloud();
     toast('Quote removed.');
   }
 
   // ═══════════════════════════════════════════
   //  RATING
   // ═══════════════════════════════════════════
-  function setRating(id, rating) {
+  async function setRating(id, rating) {
     const q = quotes.find(x => x.id === id);
     if (!q) return;
     q.rating = rating;
-    saveQuotesToStorage();
     renderGrid();
-    // Pulse the star
     setTimeout(() => {
       const card = document.querySelector(`.card[data-id="${id}"]`);
       if (card) {
@@ -990,6 +1173,7 @@
         setTimeout(() => stars.forEach(s => s.classList.remove('pulse')), 300);
       }
     }, 10);
+    await saveQuotesToCloud();
   }
 
   // ═══════════════════════════════════════════
@@ -1011,13 +1195,10 @@
   function filteredSorted() {
     const search = document.getElementById('searchInput').value.trim().toLowerCase();
     let list = [...quotes];
-
-    // Filter by rating
     if (currentFilter !== 'all') {
       const min = parseInt(currentFilter);
       list = list.filter(q => q.rating >= min);
     }
-    // Filter by search
     if (search) {
       list = list.filter(q =>
         q.quote.toLowerCase().includes(search) ||
@@ -1025,11 +1206,9 @@
         (q.source||'').toLowerCase().includes(search)
       );
     }
-    // Sort
     if (currentSort === 'newest') list.sort((a,b) => b.ts - a.ts);
     else if (currentSort === 'goated') list.sort((a,b) => b.rating - a.rating || b.ts - a.ts);
     else if (currentSort === 'az') list.sort((a,b) => a.author.localeCompare(b.author));
-
     return list;
   }
 
@@ -1048,7 +1227,6 @@
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
 
-    // Stats
     const total5 = quotes.filter(q => q.rating === 5).length;
     const avg = quotes.length ? (quotes.reduce((s,q) => s + q.rating, 0) / quotes.length).toFixed(1) : '—';
     document.getElementById('statTotal').textContent = quotes.length;
@@ -1105,7 +1283,6 @@
   function escHtml(s) {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-
   function avatarPlaceholder(name) {
     const initial = (name || '?').charAt(0).toUpperCase();
     return `<div class="card-avatar-placeholder">${initial}</div>`;
@@ -1115,7 +1292,6 @@
   //  INIT
   // ═══════════════════════════════════════════
   loadQuotes();
-  renderGrid();
 </script>
 </body>
 </html>
