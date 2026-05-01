@@ -1,709 +1,1110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Goated Sanctum</title>
-    <style>
-        /* === THEME & VARIABLES === */
-        :root {
-            --bg-base: #09090b;
-            --bg-panel: #18181b;
-            --bg-elevated: #27272a;
-            --accent-gold: #fbbf24;
-            --accent-gold-glow: rgba(251, 191, 36, 0.3);
-            --accent-danger: #ef4444;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --font-display: 'Cinzel', 'Georgia', serif;
-            --font-body: 'Inter', system-ui, sans-serif;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quotebook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f5f0e8;
+      --bg2: #ede8dc;
+      --card: #fff;
+      --ink: #1a1410;
+      --ink2: #5a4f3f;
+      --accent: #b85c38;
+      --accent2: #e8a87c;
+      --gold: #c9963a;
+      --star-on: #c9963a;
+      --star-off: #d4c9b0;
+      --border: rgba(26,20,16,0.1);
+      --shadow: 0 2px 20px rgba(26,20,16,0.08);
+      --shadow-hover: 0 8px 40px rgba(26,20,16,0.14);
+      --radius: 12px;
+      --transition: 0.25s ease;
+    }
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            font-family: var(--font-body);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 0%, #27272a 0%, transparent 50%);
-        }
+    html { scroll-behavior: smooth; }
 
-        /* === TYPOGRAPHY & HEADER === */
-        header {
-            text-align: center;
-            padding: 4rem 1rem 2rem;
-            position: relative;
-        }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        .dramatic-title {
-            font-family: var(--font-display);
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            background: linear-gradient(to bottom, #fffbeb, #fbbf24, #b45309);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px var(--accent-gold-glow));
-            margin-bottom: 1rem;
-            animation: pulseGlow 4s infinite alternate;
-        }
+    /* ─── HEADER ─────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      backdrop-filter: blur(8px);
+    }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .logo span { color: var(--accent); font-style: italic; }
 
-        /* === DASHBOARD & CONTROLS === */
-        .dashboard {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
 
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            background: var(--bg-panel);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--bg-elevated);
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 1rem;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--ink2);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #9d4a2c; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink2);
+      padding: 0.45rem 0.6rem;
+    }
+    .btn-ghost:hover { color: var(--accent); }
 
-        .btn {
-            background: var(--bg-elevated);
-            color: var(--text-main);
-            border: 1px solid #3f3f46;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    /* ─── HERO ─────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 3.5rem 1.5rem 2rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(184,92,56,0.1);
+      padding: 0.3rem 0.8rem;
+      border-radius: 99px;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+    }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero p {
+      font-size: 0.95rem;
+      color: var(--ink2);
+      max-width: 400px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
 
-        .btn:hover { background: #3f3f46; transform: translateY(-2px); }
-        .btn-gold { background: var(--accent-gold); color: #000; border: none; }
-        .btn-gold:hover { background: #f59e0b; box-shadow: 0 0 15px var(--accent-gold-glow); }
-        .btn-danger { background: transparent; color: var(--accent-danger); border-color: var(--accent-danger); }
-        .btn-danger:hover { background: var(--accent-danger); color: white; }
+    /* ─── CONTROLS ─────────────────────────── */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      padding: 0 1.25rem 1.5rem;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .search-wrap {
+      flex: 1;
+      min-width: 200px;
+      max-width: 320px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 0.55rem 1rem 0.55rem 2.5rem;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      background: var(--card);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--ink);
+      outline: none;
+      transition: var(--transition);
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--ink2); opacity: 0.6; }
+    .search-wrap svg {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink2);
+      opacity: 0.5;
+      pointer-events: none;
+    }
 
-        select.btn { appearance: none; padding-right: 2.5rem; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 0.7rem top 50%; background-size: 0.65rem auto; }
+    .sort-wrap { display: flex; gap: 0.4rem; }
+    .sort-btn {
+      padding: 0.45rem 0.9rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--ink2);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+    .sort-btn.active, .sort-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
 
-        .stats-bar {
-            display: flex;
-            gap: 1.5rem;
-            color: var(--accent-gold);
-            font-family: var(--font-display);
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+    .filter-wrap { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .star-filter {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      color: var(--ink2);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+    .star-filter.active, .star-filter:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,150,58,0.08);
+    }
 
-        .auth-hidden { display: none !important; }
+    /* ─── STATS ─────────────────────────────── */
+    .stats {
+      display: flex;
+      gap: 1.5rem;
+      padding: 0 1.25rem 1.5rem;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+    .stat { font-size: 0.78rem; color: var(--ink2); }
+    .stat strong { color: var(--ink); font-weight: 600; }
 
-        /* === GRID & CARDS === */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            padding-bottom: 4rem;
-        }
+    /* ─── QUOTE GRID ─────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: 0 1.25rem 4rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    @media (min-width: 600px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
 
-        .card {
-            background: var(--bg-panel);
-            border-radius: 16px;
-            border: 1px solid var(--bg-elevated);
-            overflow: hidden;
-            position: relative;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            transition: var(--transition);
-        }
+    /* ─── QUOTE CARD ─────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform var(--transition), box-shadow var(--transition);
+      cursor: default;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+    .card.enter {
+      animation: cardIn 0.4s ease both;
+    }
 
-        .card:hover {
-            transform: translateY(-10px);
-            border-color: var(--accent-gold);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px var(--accent-gold-glow);
-        }
+    .card-image-wrap {
+      position: relative;
+      height: 130px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .card-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+      filter: brightness(0.6);
+    }
+    .card:hover .card-image-wrap img { transform: scale(1.04); }
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(26,20,16,0.1) 0%, rgba(26,20,16,0.55) 100%);
+    }
+    .card-goat-badge {
+      position: absolute;
+      top: 0.6rem;
+      right: 0.6rem;
+      background: var(--gold);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: none;
+    }
+    .card[data-rating="5"] .card-goat-badge { display: block; }
+    .card-author-img {
+      position: absolute;
+      bottom: 0.7rem;
+      left: 0.9rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.6);
+      object-fit: cover;
+    }
 
-        .card-image-wrapper {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
+    .card-body {
+      padding: 1rem 1.1rem 0.8rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .card-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-style: italic;
+      line-height: 1.65;
+      color: var(--ink);
+      flex: 1;
+    }
+    .card-quote::before { content: '\201C'; color: var(--accent); font-size: 1.4em; line-height: 0; vertical-align: -0.25em; margin-right: 1px; }
+    .card-quote::after  { content: '\201D'; color: var(--accent); font-size: 1.4em; line-height: 0; vertical-align: -0.25em; margin-left: 1px; }
 
-        .card-image {
-            width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: grayscale(100%) brightness(0.4);
-            transition: var(--transition);
-        }
+    .card-author {
+      font-size: 0.78rem;
+      color: var(--ink2);
+      font-weight: 500;
+    }
+    .card-author span { color: var(--accent); }
 
-        .card:hover .card-image {
-            filter: grayscale(0%) brightness(0.6);
-            transform: scale(1.05);
-        }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1.1rem 0.9rem;
+    }
+    .stars {
+      display: flex;
+      gap: 3px;
+    }
+    .star {
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, color 0.15s ease;
+      line-height: 1;
+      user-select: none;
+    }
+    .star:hover { transform: scale(1.25); }
+    .star.on  { color: var(--star-on); }
+    .star.off { color: var(--star-off); }
+    .star.pulse { animation: starPulse 0.25s ease; }
 
-        .card-gradient {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 80%;
-            background: linear-gradient(to top, var(--bg-base) 0%, rgba(9,9,11,0.8) 50%, transparent 100%);
-            z-index: 1;
-        }
+    .card-actions { display: flex; gap: 0.25rem; }
+    .card-edit-btn, .card-del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--ink2);
+      opacity: 0;
+      transition: opacity var(--transition), color var(--transition);
+      padding: 0.2rem;
+      line-height: 1;
+    }
+    .card:hover .card-edit-btn,
+    .card:hover .card-del-btn { opacity: 1; }
+    .card-edit-btn:hover { color: var(--accent); }
+    .card-del-btn:hover  { color: #c0392b; }
 
-        .card-content {
-            position: relative;
-            z-index: 2;
-            padding: 2rem;
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+    /* ─── EMPTY STATE ─────────────────────────── */
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    .empty p {
+      font-size: 1rem;
+      color: var(--ink2);
+      margin-top: 0.5rem;
+    }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.4; }
 
-        .quote-icon {
-            color: var(--accent-gold);
-            font-size: 3rem;
-            font-family: var(--font-display);
-            line-height: 0;
-            opacity: 0.5;
-        }
+    /* ─── MODAL ─────────────────────────────── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,0.45);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
 
-        .quote-text {
-            font-size: 1.3rem;
-            font-style: italic;
-            line-height: 1.5;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-        }
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 60px rgba(26,20,16,0.25);
+      overflow: hidden;
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.25s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .overlay.open .modal { transform: translateY(0) scale(1); }
 
-        .quote-author {
-            color: var(--accent-gold);
-            font-family: var(--font-display);
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-        }
+    .modal-header {
+      padding: 1.25rem 1.5rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.25rem;
+      color: var(--ink2);
+      line-height: 1;
+      padding: 0.2rem;
+      transition: color var(--transition);
+    }
+    .modal-close:hover { color: var(--accent); }
 
-        .goat-meter {
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
-            background: rgba(0,0,0,0.5);
-            padding: 0.8rem;
-            border-radius: 8px;
-            backdrop-filter: blur(4px);
-        }
+    .modal-body { padding: 1.25rem 1.5rem 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink2);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color var(--transition);
+      resize: vertical;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { min-height: 90px; }
 
-        .stars { display: flex; gap: 5px; font-size: 1.5rem; cursor: default; }
-        .stars.interactive { cursor: pointer; }
-        .star { filter: grayscale(100%) opacity(0.3); transition: var(--transition); }
-        .star.active { filter: grayscale(0%) opacity(1); transform: scale(1.1); }
-        .star:hover.interactive { transform: scale(1.3); }
+    .form-star-row {
+      display: flex;
+      gap: 6px;
+      font-size: 1.5rem;
+    }
+    .form-star {
+      cursor: pointer;
+      transition: transform 0.15s ease;
+      color: var(--star-off);
+      user-select: none;
+    }
+    .form-star:hover, .form-star.on { color: var(--star-on); }
+    .form-star:hover { transform: scale(1.2); }
 
-        .goat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    .modal-footer {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+      padding: 0 1.5rem 1.5rem;
+    }
 
-        .card-actions {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            z-index: 3;
-            display: flex;
-            gap: 0.5rem;
-        }
+    /* ─── ADMIN LOGIN ─────────────────────────── */
+    .admin-login-wrap { text-align: center; padding: 0.5rem 0; }
+    .admin-login-link {
+      font-size: 0.75rem;
+      color: var(--ink2);
+      text-decoration: underline;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity var(--transition);
+      background: none;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .admin-login-link:hover { opacity: 1; color: var(--accent); }
 
-        .card-actions button {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid var(--text-muted);
-            color: white;
-            padding: 0.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            transition: var(--transition);
-        }
+    /* ─── ADMIN PILL ─────────────────────────── */
+    .admin-pill {
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(184,92,56,0.1);
+      border: 1.5px solid rgba(184,92,56,0.25);
+      border-radius: 99px;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .admin-pill.visible { display: flex; }
+    .admin-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: blink 1.6s ease infinite;
+    }
 
-        .card-actions button:hover { background: var(--bg-elevated); transform: scale(1.1); }
-        .card-actions .del:hover { background: var(--accent-danger); border-color: var(--accent-danger); }
+    /* ─── TOAST ─────────────────────────────── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .toast {
+      background: var(--ink);
+      color: #fff;
+      font-size: 0.82rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 99px;
+      white-space: nowrap;
+      animation: toastIn 0.3s ease both;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .toast.out { animation: toastOut 0.3s ease both; }
 
-        /* === MODALS === */
-        .modal-backdrop {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
-        }
+    /* ─── FAB ─────────────────────────────── */
+    .fab {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 150;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(184,92,56,0.4);
+      transition: background var(--transition), transform var(--transition);
+    }
+    .fab.visible { display: flex; }
+    .fab:hover { background: #9d4a2c; transform: scale(1.08); }
+    .fab:active { transform: scale(0.96); }
 
-        .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    /* ─── SCROLLBAR ─────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg2); }
+    ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 99px; }
 
-        .modal {
-            background: var(--bg-panel);
-            border: 1px solid var(--accent-gold);
-            padding: 2.5rem;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(251, 191, 36, 0.1);
-            transform: scale(0.9);
-            transition: var(--transition);
-        }
+    /* ─── ANIMATIONS ─────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes starPulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
 
-        .modal-backdrop.open .modal { transform: scale(1); }
-
-        .modal h2 {
-            font-family: var(--font-display);
-            color: var(--accent-gold);
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-            text-align: center;
-        }
-
-        .input-group { margin-bottom: 1.5rem; }
-        .input-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
-        .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 1rem;
-            background: var(--bg-base);
-            border: 1px solid var(--bg-elevated);
-            color: white;
-            border-radius: 8px;
-            font-family: var(--font-body);
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        .input-group input:focus, .input-group textarea:focus { outline: none; border-color: var(--accent-gold); }
-        .input-group textarea { resize: vertical; min-height: 120px; }
-
-        .modal-buttons { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; }
-
-        /* Animations */
-        @keyframes pulseGlow {
-            from { filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.2)); }
-            to { filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.6)); }
-        }
-        
-        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-            40%, 60% { transform: translate3d(4px, 0, 0); }
-        }
-    </style>
+    /* ─── FOOTER ─────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--ink2);
+      opacity: 0.5;
+      border-top: 1px solid var(--border);
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1 class="dramatic-title">The Goated Sanctum</h1>
-        <p class="subtitle">Immortalizing the profound, the stupid, and the legendary.</p>
-    </header>
-
-    <main class="dashboard">
-        <div class="toolbar">
-            <div class="stats-bar" id="statsBar">
-                <!-- Stats injected by JS -->
-            </div>
-            
-            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-                <select class="btn" id="sortSelect" onchange="renderQuotes()">
-                    <option value="goated">Rank: Absolute Goats First</option>
-                    <option value="trash">Rank: Literal Trash First</option>
-                    <option value="newest">Timeline: Newest Entry</option>
-                    <option value="oldest">Timeline: Oldest Entry</option>
-                </select>
-
-                <!-- Guest Controls -->
-                <button class="btn btn-gold guest-only" onclick="openModal('loginModal')">🔑 Enter The Vault (Admin)</button>
-
-                <!-- Admin Controls -->
-                <button class="btn btn-gold auth-only auth-hidden" onclick="openModal('quoteModal')">✍️ Scribe a Quote</button>
-                <button class="btn auth-only auth-hidden" onclick="openModal('settingsModal')">⚙️ Vault Settings</button>
-                <button class="btn btn-danger auth-only auth-hidden" onclick="logout()">🚪 Lock Vault</button>
-            </div>
-        </div>
-
-        <div class="grid" id="quoteGrid">
-            <!-- Quotes injected by JS -->
-        </div>
-    </main>
-
-    <!-- Modal: Login -->
-    <div class="modal-backdrop" id="loginModal">
-        <div class="modal">
-            <h2>Access Sanctum</h2>
-            <form onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <label>Sanctum ID</label>
-                    <input type="text" id="loginId" required placeholder="admin">
-                </div>
-                <div class="input-group">
-                    <label>Secret Passphrase</label>
-                    <input type="password" id="loginPass" required placeholder="password123">
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn" onclick="closeModals()">Flee</button>
-                    <button type="submit" class="btn btn-gold">Unlock</button>
-                </div>
-            </form>
-        </div>
+<!-- HEADER -->
+<header>
+  <div class="logo">Quote<span>book</span></div>
+  <div class="header-actions">
+    <div class="admin-pill" id="adminPill">
+      <span class="admin-dot"></span> Admin
     </div>
+    <button class="btn btn-outline" id="adminBtn" onclick="openAdminLogin()">Admin</button>
+  </div>
+</header>
 
-    <!-- Modal: Add/Edit Quote -->
-    <div class="modal-backdrop" id="quoteModal">
-        <div class="modal">
-            <h2 id="quoteModalTitle">Scribe New Lore</h2>
-            <form onsubmit="handleQuoteSubmit(event)">
-                <input type="hidden" id="qId">
-                <div class="input-group">
-                    <label>The Words Uttered</label>
-                    <textarea id="qText" required placeholder="What was said?"></textarea>
-                </div>
-                <div class="input-group">
-                    <label>The Sayer (Author)</label>
-                    <input type="text" id="qAuthor" required placeholder="Who said it?">
-                </div>
-                <div class="input-group">
-                    <label>Portrait Archive Path</label>
-                    <input type="text" id="qImage" value="images/hero.png" required>
-                </div>
-                <div class="input-group">
-                    <label>Initial Goat Rating (1-5)</label>
-                    <input type="number" id="qRating" min="1" max="5" value="3" required>
-                </div>
-                <div class="modal-buttons">
-                    <button type="button" class="btn" onclick="closeModals()">Discard</button>
-                    <button type="submit" class="btn btn-gold">Immortalize</button>
-                </div>
-            </form>
-        </div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-label">A collection of wisdom</div>
+  <h1>Words that <em>stayed</em> with you</h1>
+  <p>A curated library of quotes ranked by how goated they truly are.</p>
+  <div class="admin-login-wrap">
+    <button class="admin-login-link" onclick="openAdminLogin()">Admin access</button>
+  </div>
+</section>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search quotes or authors…" oninput="renderGrid()" />
+  </div>
+  <div class="filter-wrap">
+    <button class="star-filter active" data-filter="all" onclick="setFilter('all',this)">All</button>
+    <button class="star-filter" data-filter="5" onclick="setFilter('5',this)">★ 5</button>
+    <button class="star-filter" data-filter="4" onclick="setFilter('4',this)">★ 4+</button>
+    <button class="star-filter" data-filter="3" onclick="setFilter('3',this)">★ 3+</button>
+  </div>
+  <div class="sort-wrap">
+    <button class="sort-btn active" data-sort="newest" onclick="setSort('newest',this)">Newest</button>
+    <button class="sort-btn" data-sort="goated" onclick="setSort('goated',this)">Most Goated</button>
+    <button class="sort-btn" data-sort="az" onclick="setSort('az',this)">A–Z</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats" id="statsBar">
+  <div class="stat"><strong id="statTotal">0</strong> quotes</div>
+  <div class="stat"><strong id="statGoated">0</strong> five-star</div>
+  <div class="stat">Avg rating <strong id="statAvg">—</strong></div>
+</div>
+
+<!-- GRID -->
+<div class="grid" id="grid"></div>
+
+<!-- FAB (admin only) -->
+<button class="fab" id="fab" onclick="openQuoteModal()" title="Add quote">+</button>
+
+<!-- TOAST AREA -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- FOOTER -->
+<footer>Quotebook · Built with love for the words that matter</footer>
+
+<!-- ═══ OVERLAYS ═══ -->
+
+<!-- Admin Login -->
+<div class="overlay" id="loginOverlay" onclick="overlayClickClose(event,'loginOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Admin Login</h2>
+      <button class="modal-close" onclick="closeOverlay('loginOverlay')">✕</button>
     </div>
-
-    <!-- Modal: Settings -->
-    <div class="modal-backdrop" id="settingsModal">
-        <div class="modal">
-            <h2>Vault Configurations</h2>
-            <form onsubmit="handleChangeCredentials(event)">
-                <div class="input-group">
-                    <label>New Sanctum ID</label>
-                    <input type="text" id="newId" required>
-                </div>
-                <div class="input-group">
-                    <label>New Passphrase</label>
-                    <input type="password" id="newPass" required>
-                </div>
-                <div class="modal-buttons" style="justify-content: space-between; border-bottom: 1px solid #3f3f46; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-                    <button type="submit" class="btn btn-gold">Update Credentials</button>
-                </div>
-            </form>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <label style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Data Management</label>
-                <button class="btn" onclick="exportData()">💾 Backup Grimoire (Export JSON)</button>
-                <button class="btn btn-danger" onclick="factoryReset()">🔥 Burn It All (Reset Data)</button>
-                <button class="btn" onclick="closeModals()" style="align-self: flex-end; margin-top: 1rem;">Done</button>
-            </div>
-        </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="admin" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeOverlay('loginOverlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="doLogin()">Sign in</button>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // === CORE STATE & LOCALSTORAGE ===
-        const STORAGE_KEY = 'TheGoatedSanctumData';
-        
-        let state = {
-            isLoggedIn: false,
-            credentials: { id: 'admin', pass: 'password123' },
-            quotes: [
-                { id: 1, text: "I'm not saying I'm Batman, I'm just saying nobody has ever seen me and Batman in the same room together.", author: "Dave", image: "images/hero.png", rating: 5, date: 1700000000000 },
-                { id: 2, text: "Bro, if you think about it, a hotdog is technically a taco.", author: "Sleep-Deprived Alex", image: "images/hero.png", rating: 2, date: 1700000001000 },
-                { id: 3, text: "The code is compiling. Do not look at it, do not breathe on it.", author: "Senior Dev", image: "images/hero.png", rating: 4, date: 1700000002000 }
-            ]
-        };
+<!-- Add/Edit Quote -->
+<div class="overlay" id="quoteOverlay" onclick="overlayClickClose(event,'quoteOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="quoteModalTitle">Add Quote</h2>
+      <button class="modal-close" onclick="closeOverlay('quoteOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Quote *</label>
+        <textarea id="fQuote" placeholder="Enter the quote…"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Author *</label>
+        <input type="text" id="fAuthor" placeholder="Who said it?" />
+      </div>
+      <div class="form-group">
+        <label>Source / Context</label>
+        <input type="text" id="fSource" placeholder="Book, speech, interview…" />
+      </div>
+      <div class="form-group">
+        <label>Author Image (path)</label>
+        <input type="text" id="fImage" placeholder="images/hero.png" />
+        <p style="font-size:0.72rem;color:var(--ink2);margin-top:0.3rem;">Relative path to image file. Default: images/hero.png</p>
+      </div>
+      <div class="form-group">
+        <label>Goat Rating</label>
+        <div class="form-star-row" id="formStars">
+          <span class="form-star" data-v="1" onclick="setFormRating(1)">★</span>
+          <span class="form-star" data-v="2" onclick="setFormRating(2)">★</span>
+          <span class="form-star" data-v="3" onclick="setFormRating(3)">★</span>
+          <span class="form-star" data-v="4" onclick="setFormRating(4)">★</span>
+          <span class="form-star" data-v="5" onclick="setFormRating(5)">★</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeOverlay('quoteOverlay')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveQuote()">Save</button>
+    </div>
+  </div>
+</div>
 
-        // Funny labels for the stars
-        const GOAT_LABELS = {
-            1: "🗑️ Literal Trash",
-            2: "🥱 Absolutely Mid",
-            3: "🤔 Respectable Take",
-            4: "🔥 Highly Based",
-            5: "🐐 DIVINE GOAT"
-        };
+<!-- Confirm Delete -->
+<div class="overlay" id="deleteOverlay" onclick="overlayClickClose(event,'deleteOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Remove Quote</h2>
+      <button class="modal-close" onclick="closeOverlay('deleteOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--ink2);font-size:0.9rem;line-height:1.6;">Are you sure you want to remove this quote? This can't be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeOverlay('deleteOverlay')">Cancel</button>
+      <button class="btn btn-primary" style="background:#c0392b" onclick="confirmDelete()">Remove</button>
+    </div>
+  </div>
+</div>
 
-        // Initialize App
-        function init() {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                state.credentials = parsed.credentials || state.credentials;
-                state.quotes = parsed.quotes || state.quotes;
-            }
-            saveData();
-            updateUI();
+<script>
+  // ═══════════════════════════════════════════
+  //  CONFIG
+  // ═══════════════════════════════════════════
+  const ADMIN_USER = 'admin';
+  const ADMIN_PASS = 'quotebook2025';
+  const STORAGE_KEY = 'quotebook_quotes_v1';
+
+  // ═══════════════════════════════════════════
+  //  DEFAULT QUOTES
+  // ═══════════════════════════════════════════
+  const defaultQuotes = [
+    { id: uid(), quote: "The only way to do great work is to love what you do.", author: "Steve Jobs", source: "Stanford Commencement, 2005", image: "images/hero.png", rating: 5, ts: Date.now() - 9e8 },
+    { id: uid(), quote: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein", source: "", image: "images/hero.png", rating: 5, ts: Date.now() - 8e8 },
+    { id: uid(), quote: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius", source: "", image: "images/hero.png", rating: 4, ts: Date.now() - 7e8 },
+    { id: uid(), quote: "Life is what happens when you're busy making other plans.", author: "John Lennon", source: "Beautiful Boy, 1980", image: "images/hero.png", rating: 5, ts: Date.now() - 6e8 },
+    { id: uid(), quote: "The unexamined life is not worth living.", author: "Socrates", source: "Apology, 399 BC", image: "images/hero.png", rating: 4, ts: Date.now() - 5e8 },
+    { id: uid(), quote: "You only live once, but if you do it right, once is enough.", author: "Mae West", source: "", image: "images/hero.png", rating: 3, ts: Date.now() - 4e8 },
+    { id: uid(), quote: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", author: "Ralph Waldo Emerson", source: "", image: "images/hero.png", rating: 5, ts: Date.now() - 3e8 },
+    { id: uid(), quote: "The journey of a thousand miles begins with one step.", author: "Lao Tzu", source: "Tao Te Ching", image: "images/hero.png", rating: 4, ts: Date.now() - 2e8 },
+    { id: uid(), quote: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford", source: "", image: "images/hero.png", rating: 3, ts: Date.now() - 1e8 },
+    { id: uid(), quote: "Two things are infinite: the universe and human stupidity; and I'm not sure about the universe.", author: "Albert Einstein", source: "", image: "images/hero.png", rating: 4, ts: Date.now() - 5e7 },
+    { id: uid(), quote: "Not all those who wander are lost.", author: "J.R.R. Tolkien", source: "The Lord of the Rings", image: "images/hero.png", rating: 5, ts: Date.now() - 2e7 },
+    { id: uid(), quote: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle", source: "", image: "images/hero.png", rating: 5, ts: Date.now() - 1e6 },
+  ];
+
+  // ═══════════════════════════════════════════
+  //  STATE
+  // ═══════════════════════════════════════════
+  let quotes = [];
+  let isAdmin = false;
+  let currentSort = 'newest';
+  let currentFilter = 'all';
+  let editingId = null;
+  let deletingId = null;
+  let formRating = 3;
+
+  // ═══════════════════════════════════════════
+  //  STORAGE (global = localStorage shared in browser)
+  // ═══════════════════════════════════════════
+  function loadQuotes() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          quotes = parsed;
+          return;
         }
+      }
+    } catch(e) {}
+    quotes = JSON.parse(JSON.stringify(defaultQuotes));
+    saveQuotesToStorage();
+  }
 
-        function saveData() {
-            // We don't save isLoggedIn state so it resets on refresh (security feature)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                credentials: state.credentials,
-                quotes: state.quotes
-            }));
-            updateStats();
-        }
+  function saveQuotesToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(quotes));
+    } catch(e) {}
+  }
 
-        // === AUTHENTICATION ===
-        function handleLogin(e) {
-            e.preventDefault();
-            const id = document.getElementById('loginId').value;
-            const pass = document.getElementById('loginPass').value;
+  // ═══════════════════════════════════════════
+  //  UTILS
+  // ═══════════════════════════════════════════
+  function uid() {
+    return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  }
 
-            if (id === state.credentials.id && pass === state.credentials.pass) {
-                state.isLoggedIn = true;
-                closeModals();
-                updateUI();
-                document.getElementById('loginPass').value = ''; // clear pass
-                
-                // Add a cool dramatic effect on login
-                document.body.classList.add('shake');
-                setTimeout(() => document.body.classList.remove('shake'), 500);
-            } else {
-                alert("❌ The Vault rejects your credentials. Try again.");
-            }
-        }
+  function toast(msg, duration = 2200) {
+    const wrap = document.getElementById('toastWrap');
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('out');
+      setTimeout(() => el.remove(), 350);
+    }, duration);
+  }
 
-        function logout() {
-            state.isLoggedIn = false;
-            updateUI();
-        }
+  // ═══════════════════════════════════════════
+  //  OVERLAYS
+  // ═══════════════════════════════════════════
+  function openOverlay(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOverlay(id) {
+    document.getElementById(id).classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function overlayClickClose(e, id) {
+    if (e.target.id === id) closeOverlay(id);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['loginOverlay','quoteOverlay','deleteOverlay'].forEach(closeOverlay);
+    }
+  });
 
-        function handleChangeCredentials(e) {
-            e.preventDefault();
-            const newId = document.getElementById('newId').value;
-            const newPass = document.getElementById('newPass').value;
-            
-            if(confirm("Are you sure you want to change the Vault's locks? Don't forget these!")) {
-                state.credentials.id = newId;
-                state.credentials.pass = newPass;
-                saveData();
-                alert("✅ Credentials updated successfully.");
-            }
-        }
+  // ═══════════════════════════════════════════
+  //  ADMIN
+  // ═══════════════════════════════════════════
+  function openAdminLogin() {
+    if (isAdmin) { logoutAdmin(); return; }
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    openOverlay('loginOverlay');
+    setTimeout(() => document.getElementById('loginUser').focus(), 100);
+  }
 
-        // === RENDER LOGIC ===
-        function updateUI() {
-            // Toggle visibility classes based on auth
-            const authEls = document.querySelectorAll('.auth-only');
-            const guestEls = document.querySelectorAll('.guest-only');
-            
-            authEls.forEach(el => state.isLoggedIn ? el.classList.remove('auth-hidden') : el.classList.add('auth-hidden'));
-            guestEls.forEach(el => state.isLoggedIn ? el.classList.add('auth-hidden') : el.classList.remove('auth-hidden'));
+  function doLogin() {
+    const u = document.getElementById('loginUser').value.trim();
+    const p = document.getElementById('loginPass').value;
+    if (u === ADMIN_USER && p === ADMIN_PASS) {
+      isAdmin = true;
+      closeOverlay('loginOverlay');
+      document.getElementById('adminPill').classList.add('visible');
+      document.getElementById('adminBtn').textContent = 'Log out';
+      document.getElementById('adminBtn').onclick = logoutAdmin;
+      document.getElementById('fab').classList.add('visible');
+      renderGrid();
+      toast('Welcome back, admin ✓');
+    } else {
+      toast('Incorrect credentials.');
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+    }
+  }
 
-            renderQuotes();
-        }
+  function logoutAdmin() {
+    isAdmin = false;
+    document.getElementById('adminPill').classList.remove('visible');
+    document.getElementById('adminBtn').textContent = 'Admin';
+    document.getElementById('adminBtn').onclick = openAdminLogin;
+    document.getElementById('fab').classList.remove('visible');
+    renderGrid();
+    toast('Logged out.');
+  }
 
-        function updateStats() {
-            const total = state.quotes.length;
-            const goatedCount = state.quotes.filter(q => q.rating === 5).length;
-            document.getElementById('statsBar').innerHTML = `
-                <span>📜 Archives: ${total}</span>
-                <span>🐐 Divine Quotes: ${goatedCount}</span>
-            `;
-        }
+  // ═══════════════════════════════════════════
+  //  QUOTE MODAL
+  // ═══════════════════════════════════════════
+  function openQuoteModal(id = null) {
+    editingId = id;
+    formRating = 3;
+    document.getElementById('quoteModalTitle').textContent = id ? 'Edit Quote' : 'Add Quote';
+    if (id) {
+      const q = quotes.find(x => x.id === id);
+      document.getElementById('fQuote').value = q.quote;
+      document.getElementById('fAuthor').value = q.author;
+      document.getElementById('fSource').value = q.source || '';
+      document.getElementById('fImage').value = q.image || 'images/hero.png';
+      formRating = q.rating;
+    } else {
+      document.getElementById('fQuote').value = '';
+      document.getElementById('fAuthor').value = '';
+      document.getElementById('fSource').value = '';
+      document.getElementById('fImage').value = 'images/hero.png';
+    }
+    renderFormStars();
+    openOverlay('quoteOverlay');
+    setTimeout(() => document.getElementById('fQuote').focus(), 100);
+  }
 
-        function renderQuotes() {
-            const grid = document.getElementById('quoteGrid');
-            const sortType = document.getElementById('sortSelect').value;
-            
-            let sorted = [...state.quotes];
-            if (sortType === 'goated') sorted.sort((a, b) => b.rating - a.rating);
-            if (sortType === 'trash') sorted.sort((a, b) => a.rating - b.rating);
-            if (sortType === 'newest') sorted.sort((a, b) => b.date - a.date);
-            if (sortType === 'oldest') sorted.sort((a, b) => a.date - b.date);
+  function setFormRating(v) {
+    formRating = v;
+    renderFormStars();
+  }
 
-            grid.innerHTML = '';
+  function renderFormStars() {
+    document.querySelectorAll('.form-star').forEach(s => {
+      s.classList.toggle('on', parseInt(s.dataset.v) <= formRating);
+    });
+  }
 
-            sorted.forEach((quote) => {
-                let starsHTML = '';
-                // Map the array to visual emojis. 1-5 scale.
-                const starEmojis = ['💩', '🥉', '🥈', '🥇', '🐐'];
-                
-                for (let i = 1; i <= 5; i++) {
-                    const isActive = i <= quote.rating ? 'active' : '';
-                    const interactClass = state.isLoggedIn ? 'interactive' : '';
-                    const clickAction = state.isLoggedIn ? `onclick="rateQuote(${quote.id}, ${i})"` : '';
-                    // Use a generic star for unearned, and specific emoji for earned
-                    const displayChar = isActive ? starEmojis[i-1] : '⭐';
-                    
-                    starsHTML += `<span class="star ${isActive} ${interactClass}" ${clickAction}>${displayChar}</span>`;
-                }
+  function saveQuote() {
+    const q = document.getElementById('fQuote').value.trim();
+    const a = document.getElementById('fAuthor').value.trim();
+    const s = document.getElementById('fSource').value.trim();
+    const img = document.getElementById('fImage').value.trim() || 'images/hero.png';
+    if (!q || !a) { toast('Quote and author are required.'); return; }
 
-                const actionsHTML = state.isLoggedIn ? `
-                    <div class="card-actions">
-                        <button onclick="editQuote(${quote.id})">✏️</button>
-                        <button class="del" onclick="deleteQuote(${quote.id})">🗑️</button>
-                    </div>
-                ` : '';
+    if (editingId) {
+      const idx = quotes.findIndex(x => x.id === editingId);
+      quotes[idx] = { ...quotes[idx], quote: q, author: a, source: s, image: img, rating: formRating };
+      toast('Quote updated ✓');
+    } else {
+      quotes.unshift({ id: uid(), quote: q, author: a, source: s, image: img, rating: formRating, ts: Date.now() });
+      toast('Quote added ✓');
+    }
+    saveQuotesToStorage();
+    closeOverlay('quoteOverlay');
+    renderGrid();
+  }
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-image-wrapper">
-                        <div class="card-image" style="background-image: url('${quote.image}')"></div>
-                    </div>
-                    <div class="card-gradient"></div>
-                    ${actionsHTML}
-                    <div class="card-content">
-                        <div class="quote-icon">"</div>
-                        <div class="quote-text">${quote.text}</div>
-                        <div class="quote-author">— ${quote.author}</div>
-                        <div class="goat-meter">
-                            <div class="stars">${starsHTML}</div>
-                            <div class="goat-label">${GOAT_LABELS[quote.rating]}</div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+  // ═══════════════════════════════════════════
+  //  DELETE
+  // ═══════════════════════════════════════════
+  function openDelete(id) {
+    deletingId = id;
+    openOverlay('deleteOverlay');
+  }
+  function confirmDelete() {
+    quotes = quotes.filter(q => q.id !== deletingId);
+    saveQuotesToStorage();
+    closeOverlay('deleteOverlay');
+    renderGrid();
+    toast('Quote removed.');
+  }
 
-        // === CRUD OPERATIONS ===
-        function handleQuoteSubmit(e) {
-            e.preventDefault();
-            const id = document.getElementById('qId').value;
-            const text = document.getElementById('qText').value;
-            const author = document.getElementById('qAuthor').value;
-            const image = document.getElementById('qImage').value;
-            const rating = parseInt(document.getElementById('qRating').value);
+  // ═══════════════════════════════════════════
+  //  RATING
+  // ═══════════════════════════════════════════
+  function setRating(id, rating) {
+    const q = quotes.find(x => x.id === id);
+    if (!q) return;
+    q.rating = rating;
+    saveQuotesToStorage();
+    renderGrid();
+    // Pulse the star
+    setTimeout(() => {
+      const card = document.querySelector(`.card[data-id="${id}"]`);
+      if (card) {
+        const stars = card.querySelectorAll('.star');
+        stars.forEach((s, i) => { if (i === rating - 1) s.classList.add('pulse'); });
+        setTimeout(() => stars.forEach(s => s.classList.remove('pulse')), 300);
+      }
+    }, 10);
+  }
 
-            if (id) {
-                // Edit existing
-                const index = state.quotes.findIndex(q => q.id == id);
-                state.quotes[index] = { ...state.quotes[index], text, author, image, rating };
-            } else {
-                // Add new
-                const newId = state.quotes.length > 0 ? Math.max(...state.quotes.map(q => q.id)) + 1 : 1;
-                state.quotes.push({ id: newId, text, author, image, rating, date: Date.now() });
-                
-                // Comedic effect for new 5 star
-                if(rating === 5) {
-                    document.body.classList.add('shake');
-                    setTimeout(() => document.body.classList.remove('shake'), 600);
-                }
-            }
+  // ═══════════════════════════════════════════
+  //  SORT & FILTER
+  // ═══════════════════════════════════════════
+  function setSort(val, btn) {
+    currentSort = val;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  }
+  function setFilter(val, btn) {
+    currentFilter = val;
+    document.querySelectorAll('.star-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderGrid();
+  }
 
-            saveData();
-            closeModals();
-            renderQuotes();
-        }
+  function filteredSorted() {
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    let list = [...quotes];
 
-        function editQuote(id) {
-            const q = state.quotes.find(q => q.id === id);
-            document.getElementById('quoteModalTitle').innerText = 'Rewrite History';
-            document.getElementById('qId').value = q.id;
-            document.getElementById('qText').value = q.text;
-            document.getElementById('qAuthor').value = q.author;
-            document.getElementById('qImage').value = q.image;
-            document.getElementById('qRating').value = q.rating;
-            openModal('quoteModal');
-        }
+    // Filter by rating
+    if (currentFilter !== 'all') {
+      const min = parseInt(currentFilter);
+      list = list.filter(q => q.rating >= min);
+    }
+    // Filter by search
+    if (search) {
+      list = list.filter(q =>
+        q.quote.toLowerCase().includes(search) ||
+        q.author.toLowerCase().includes(search) ||
+        (q.source||'').toLowerCase().includes(search)
+      );
+    }
+    // Sort
+    if (currentSort === 'newest') list.sort((a,b) => b.ts - a.ts);
+    else if (currentSort === 'goated') list.sort((a,b) => b.rating - a.rating || b.ts - a.ts);
+    else if (currentSort === 'az') list.sort((a,b) => a.author.localeCompare(b.author));
 
-        function deleteQuote(id) {
-            if(confirm("Are you sure you want to erase this from the annals of history forever?")) {
-                state.quotes = state.quotes.filter(q => q.id !== id);
-                saveData();
-                renderQuotes();
-            }
-        }
+    return list;
+  }
 
-        function rateQuote(id, rating) {
-            if (!state.isLoggedIn) return;
-            const index = state.quotes.findIndex(q => q.id === id);
-            if (index > -1) {
-                state.quotes[index].rating = rating;
-                saveData();
-                renderQuotes();
-                
-                if(rating === 5) {
-                    document.body.classList.add('shake');
-                    setTimeout(() => document.body.classList.remove('shake'), 400);
-                }
-            }
-        }
+  // ═══════════════════════════════════════════
+  //  RENDER
+  // ═══════════════════════════════════════════
+  function renderStars(id, rating) {
+    return [1,2,3,4,5].map(i => {
+      const cls = i <= rating ? 'star on' : 'star off';
+      return `<span class="${cls}" onclick="setRating('${id}',${i})">★</span>`;
+    }).join('');
+  }
 
-        // === MODAL CONTROLS ===
-        function openModal(modalId) {
-            // Reset forms if opening add quote
-            if (modalId === 'quoteModal' && !document.getElementById('qId').value) {
-                document.getElementById('quoteModalTitle').innerText = 'Scribe New Lore';
-                document.getElementById('qId').value = '';
-                document.getElementById('qText').value = '';
-                document.getElementById('qAuthor').value = '';
-                document.getElementById('qImage').value = 'images/hero.png';
-                document.getElementById('qRating').value = '3';
-            }
-            
-            // Populate settings modal
-            if (modalId === 'settingsModal') {
-                document.getElementById('newId').value = state.credentials.id;
-                document.getElementById('newPass').value = state.credentials.pass;
-            }
+  function renderGrid() {
+    const list = filteredSorted();
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
 
-            document.getElementById(modalId).classList.add('open');
-        }
+    // Stats
+    const total5 = quotes.filter(q => q.rating === 5).length;
+    const avg = quotes.length ? (quotes.reduce((s,q) => s + q.rating, 0) / quotes.length).toFixed(1) : '—';
+    document.getElementById('statTotal').textContent = quotes.length;
+    document.getElementById('statGoated').textContent = total5;
+    document.getElementById('statAvg').textContent = avg;
 
-        function closeModals() {
-            document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open'));
-            document.getElementById('qId').value = ''; // reset hidden id
-        }
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="empty"><div class="empty-icon">📖</div><p>No quotes found.</p></div>`;
+      return;
+    }
 
-        // Close modal on outside click
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-backdrop')) closeModals();
-        }
+    list.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'card enter';
+      card.dataset.id = q.id;
+      card.dataset.rating = q.rating;
+      card.style.animationDelay = `${Math.min(i * 0.05, 0.4)}s`;
 
-        // === DATA MANAGEMENT ===
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href",     dataStr);
-            downloadAnchorNode.setAttribute("download", "goated_grimoire_backup.json");
-            document.body.appendChild(downloadAnchorNode); // required for firefox
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        }
+      const adminBtns = isAdmin ? `
+        <div class="card-actions">
+          <button class="card-edit-btn" onclick="openQuoteModal('${q.id}')" title="Edit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="card-del-btn" onclick="openDelete('${q.id}')" title="Remove">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      ` : '';
 
-        function factoryReset() {
-            if(confirm("🚨 WARNING! 🚨\nThis will wipe all quotes and reset passwords to default. Are you entirely sure?")) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload(); // Quickest way to reset state to defaults
-            }
-        }
+      card.innerHTML = `
+        <div class="card-image-wrap">
+          <img src="${q.image || 'images/hero.png'}" alt="${q.author}" onerror="this.src='images/hero.png'" />
+          <div class="card-overlay"></div>
+          <div class="card-goat-badge">GOAT</div>
+          <img class="card-author-img" src="${q.image || 'images/hero.png'}" alt="${q.author}" onerror="this.src='images/hero.png'" />
+        </div>
+        <div class="card-body">
+          <div class="card-quote">${escHtml(q.quote)}</div>
+          <div class="card-author">— <span>${escHtml(q.author)}</span>${q.source ? `, <em>${escHtml(q.source)}</em>` : ''}</div>
+        </div>
+        <div class="card-footer">
+          <div class="stars">${renderStars(q.id, q.rating)}</div>
+          ${adminBtns}
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
 
-        // Boot up
-        init();
-    </script>
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ═══════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════
+  loadQuotes();
+  renderGrid();
+</script>
 </body>
 </html>
